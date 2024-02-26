@@ -72,7 +72,7 @@ const NavigationMember = () => {
                     <summary className="btn btn-ghost border-none flex flex-nowrap items-center align-middle text-[#FFFFFF] p-2 mr-2">
                         <div className="avatar">
                             <div className="rounded-full w-11">
-                                <img src={`${process.env.REACT_APP_ASSET}${isLogin.payload.avatar}`} alt={`avatar-${isLogin.payload.username}`}/>
+                                <img src={`${process.env.REACT_APP_AVATAR}${isLogin.payload.avatar}`} alt={`avatar-${isLogin.payload.username}`}/>
                             </div>
                         </div>
                         <span translate="no" className="text-xl subpixel-antialiased not-italic font-normal text-left text-nowrap">{isLogin.payload.username}</span>
