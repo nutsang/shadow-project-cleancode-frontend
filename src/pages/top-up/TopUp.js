@@ -1,19 +1,65 @@
 import MetaHeader from '../../components/meta-header/MetaHeader'
 import Navigation from '../../components/navigation/Navigation'
 import TitleBox from '../../components/title-box/TitleBox'
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Icon } from '@iconify/react'
+import Swal from 'sweetalert2'
+import axios from 'axios'
 
 const TopUp = () => {
     const isLogin = useSelector((state) => state.isLogin.isLogin)
     const navigate = useNavigate()
+    const [giftTrueMoney, setGiftTrueMoney] = useState('')
 
-    useEffect(() => {
-        !isLogin.status && navigate('/')
-        isLogin.status && isLogin.payload.role !== 0 && navigate('/')
-    }, [isLogin, navigate])
+    const alertSuccess = (title, text, confirmButtonText) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'success',
+            confirmButtonText: confirmButtonText
+        })
+    }
+
+    const alertError = (title, text, confirmButtonText) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'error',
+            confirmButtonText: confirmButtonText
+        })
+    }
+
+    const alertWarning = (title, text, confirmButtonText) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            confirmButtonText: confirmButtonText
+        })
+    }
+
+    const handleTopUp = (event) => {
+        event.preventDefault()
+        if(isLogin.payload.role === 0){
+            axios.post(`${process.env.REACT_APP_API}/topup`, {email:isLogin.payload.email, giftTrueMoney:giftTrueMoney}, {
+                withCredentials: true
+            })
+            .then((response) => {
+                if(response.data.status){
+                    alertSuccess('สำเร็จ', response.data.payload, 'ตกลง')
+                }else{
+                    alertError('ผิดพลาด', response.data.payload, 'ตกลง')
+                }
+            })
+            .catch((error) => {
+                alertError('ผิดพลาด', `เติม Aysel ล้มเหลว6`, 'ตกลง')
+            })
+        }else{
+            alertWarning('คำเตือน', 'กรุณาเข้าสู่ระบบ', 'ตกลง')
+        }
+    }
 
     return (
         <div>
@@ -28,9 +74,9 @@ const TopUp = () => {
             </div>
             <TitleBox title={'วิธีชำระเงิน'} />
             <div className='flex flex-col items-center justify-center mt-10 mx-60'>
-                <input type={'text'} placeholder={'กรุณากรอก URL'} className={'input w-full text-left border-none bg-[#D9D9D9] text-[#000000]'} />
+                <input value={giftTrueMoney} onChange={(text) => {setGiftTrueMoney(text.target.value)}} type={'text'} placeholder={'กรุณากรอก URL'} className={'input w-full text-left border-none bg-[#D9D9D9] text-[#000000]'} />
                 <Link to='/transaction' className='link mt-2 self-end text-[#FFB302] hover:text-[#E5A101]'>ติดตามสถานะการเติมเงิน</Link>
-                <button type='button' className='btn w-full mt-5 border-none bg-[#A5DC86] hover:bg-[#86b36d] text-[#FFFFFF]'>ยืนยัน</button>
+                <button type='button' onClick={handleTopUp} className='btn w-full mt-5 border-none bg-[#A5DC86] hover:bg-[#86b36d] text-[#FFFFFF]'>ยืนยัน</button>
             </div>
             <div className='flex flex-row items-center mt-10 justify-evenly'>
                 <button type='button' onClick={()=>document.getElementById('image-payment-method').showModal()} className='btn size-96 text-3xl border-none bg-[#33007B] hover:bg-[#33007B] text-[#FFB302]'>ภาพวิธีการชำระเงิน</button>
